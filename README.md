@@ -13,6 +13,8 @@ To play Pacman, use the following command in the command line:
 Pacman supports several options. To see a list of all options and their default values, use:
 `python pacman.py -h`
 
+test:
+`python autograder.py`
 
 ## q1
 
