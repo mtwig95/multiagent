@@ -13,7 +13,7 @@ To play Pacman, use the following command in the command line:
 Pacman supports several options. To see a list of all options and their default values, use:
 `python pacman.py -h`
 
-# Features
+
 ## q1
 
 ### a reflex agent consider both food locations and ghost locations
