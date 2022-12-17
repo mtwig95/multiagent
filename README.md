@@ -53,12 +53,13 @@ The Minimax agent uses the get_minimax_val function to calculate Pacman's best a
 * test: `python autograder.py -q q3`
   `python autograder.py -q q3 --no-graphics`
 
-In order to create Alpha Beta Agent, I used the Minimax algorithm and made the following changes:
+In order to create the Alpha Beta Agent, the Minimax algorithm was used and the following changes were made:
+
 Before starting the search, beta and alpha were initialized to the largest positive and negative numbers respectively.
-To prune the search tree, add alpha and beta parameters to the get_minimax_val function.
-The max_value function has been updated to include an alpha-beta pruning check, returning the value of alpha as the maximum value if alpha is greater than beta.
-The min_value function has been updated to include an alpha-beta pruning check, returning the value of beta as the minimum value if beta is smaller than alpha.
-As a result of these changes, Minimax algorithm can now incorporate alpha-beta pruning, which can significantly improve its efficiency by pruning non-relevant branches from the search tree.
+The get_minimax_val function was updated to include alpha and beta parameters.
+The max_value function was updated to include an alpha-beta pruning check, returning the value of alpha as the maximum value if alpha is greater than beta.
+The min_value function was updated to include an alpha-beta pruning check, returning the value of beta as the minimum value if beta is smaller than alpha.
+As a result of these changes, the Minimax algorithm can now incorporate alpha-beta pruning, which can significantly improve its efficiency by pruning non-relevant branches from the search tree.
 
 
 ## q4
@@ -73,10 +74,8 @@ As a result of these changes, Minimax algorithm can now incorporate alpha-beta p
 * test: `python autograder.py -q q4`
   `python autograder.py -q q4 --no-graphics`
 
-Implementing the Expectimax search algorithm instead of the Minimax algorithm:
-The infrastructure remained the same, but I changed how the function handled ghost plays. 
-The Expectimax algorithm calculates the expected value of all possible moves based on the probability of each outcome. 
-This is instead of choosing the minimum value of all possible moves, as in Minimax.
+The Expectimax Agent uses a recursive search algorithm similar to the Minimax Agent, but with some key differences. Rather than alternating between maximizing and minimizing at each level of the search tree, the Expectimax Agent estimates the expected value of each action based on the probabilities of different outcomes. This allows the agent to make decisions that are not necessarily optimal, but are still reasonable given the uncertainty of the game.
+
 
 ## q5
 
@@ -92,3 +91,5 @@ Capsules left: The number of power capsules remaining in the game is multiplied 
 Distance to ghost: The distance to the nearest ghost is calculated and added to the score. A larger distance means a higher score. If a ghost is too close (within 2 units), the function returns negative infinity to indicate that the current state is a losing state.
 Additional factors: If the current state is a losing state (Pacman has been eaten by a ghost), a large negative constant is subtracted from the score. If the current state is a winning state (all food has been eaten), a large positive constant is added to the score.
 Finally, the score is returned. 
+By incorporating these and other factors into the evaluation function, we can create a more effective agent that is better able to make strategic decisions in the game.
+
