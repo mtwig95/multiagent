@@ -10,7 +10,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-import math
+
 import random
 
 import util
@@ -20,12 +20,12 @@ from util import manhattanDistance
 
 class ReflexAgent(Agent):
     """
-      A reflex agent chooses an action at each choice point by examining
-      its alternatives via a state evaluation function.
+    A reflex agent chooses an action at each choice point by examining
+    its alternatives via a state evaluation function.
 
-      The code below is provided as a guide.  You are welcome to change
-      it in any way you see fit, so long as you don't touch our method
-      headers.
+    The code below is provided as a guide.  You are welcome to change
+    it in any way you see fit, so long as you don't touch our method
+    headers.
     """
 
     def getAction(self, gameState):
@@ -74,7 +74,7 @@ class ReflexAgent(Agent):
             if manhattanDistance(newPos, ghost) < 2:
                 return -float('inf')
 
-        # find the closet food
+        # Find the nearest food dot
         closest_food = float("inf")
         for food in newFood:
             closest_food = min(closest_food, manhattanDistance(newPos, food))
@@ -85,24 +85,24 @@ class ReflexAgent(Agent):
 
 def scoreEvaluationFunction(currentGameState):
     """
-      This default evaluation function just returns the score of the state.
-      The score is the same one displayed in the Pacman GUI.
+    This default evaluation function just returns the score of the state.
+    The score is the same one displayed in the Pacman GUI.
 
-      This evaluation function is meant for use with adversarial search agents
-      (not reflex agents).
+    This evaluation function is meant for use with adversarial search agents
+    (not reflex agents).
     """
     return currentGameState.getScore()
 
 
 class MultiAgentSearchAgent(Agent):
     """
-      This class provides some common elements to all of your
-      multi-agent searchers.  Any methods defined here will be available
-      to the MinimaxPacmanAgent, AlphaBetaPacmanAgent & ExpectimaxPacmanAgent.
+    This class provides some common elements to all of your
+    multi-agent searchers.  Any methods defined here will be available
+    to the MinimaxPacmanAgent, AlphaBetaPacmanAgent & ExpectimaxPacmanAgent.
 
-      You *do not* need to make any changes here, but you can if you want to
-      add functionality to all your adversarial search agents.  Please do not
-      remove anything, however.
+    You *do not* need to make any changes here, but you can if you want to
+    add functionality to all your adversarial search agents.  Please do not
+    remove anything, however.
 
       Note: this is an abstract class: one that should not be instantiated.  It's
       only partially specified, and designed to be extended.  Agent (game.py)
@@ -215,11 +215,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
-    def getAction(self, game_state):
+    def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        alpha_beta_val = self.get_minimax_val(game_state, 0, 0, float("-inf"), float("inf"))
+        alpha_beta_val = self.get_minimax_val(gameState, 0, 0, float("-inf"), float("inf"))
         return alpha_beta_val[1]
 
     def get_minimax_val(self, game_state, index, depth, alpha, beta):
@@ -301,22 +301,21 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       Your expectimax agent (question 4)
     """
 
-    def getAction(self, game_state):
+    def getAction(self, gameState):
         """
           Returns the expectimax action using self.depth and self.evaluationFunction
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        # Format of result = [action, score]
-        score, action = self.get_value(game_state, 0, 0)
+        action, score = self.get_value(gameState, 0, 0)  ##### 1
 
         return action
 
     def get_value(self, gameState, index, depth):
-        # Check if there isn't legal move maximum depth has been reached, Return the value of the terminal state
+        # Check if there isn't legal move maximum depth has been reached, Return the value of the evaluation function
         if len(gameState.getLegalActions(index)) == 0 or depth == self.depth:
-            return gameState.getScore(), ""
+            return "", self.evaluationFunction(gameState)
 
         # Pac-Man's turn: maximize the value
         if index == 0:
@@ -328,6 +327,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def max_value(self, gameState, index, depth):
         max_value = float("-inf")
+        max_action = ""
 
         # Get the list of legal actions for the current agent
         for action in gameState.getLegalActions(index):
@@ -342,14 +342,14 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 next_depth += 1
 
             # Calculate the value of the next state
-            optional_value, optional_action = self.get_value(next_state, next_index, next_depth)
+            optional_action, optional_value = self.get_value(next_state, next_index, next_depth)
 
             # Update the maximum value and best action if necessary
             if optional_value > max_value:
                 max_value = optional_value
                 max_action = action
 
-        return max_value, max_action
+        return max_action, max_value
 
     def expected_value(self, gameState, index, depth):
         # Initialize the expected value to zero
@@ -367,22 +367,48 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 next_depth += 1
 
             # Calculate the value of the next state
-            next_val, next_action = self.get_value(next_state, next_index, next_depth)
+            next_action, next_val = self.get_value(next_state, next_index, next_depth)
 
             # Add the probability-weighted value to the expected value
             expected_value += (1.0 / len(gameState.getLegalActions(index))) * next_val
 
-        return expected_value, next_action
+        return next_action, expected_value
 
 
 def betterEvaluationFunction(currentGameState):
-    """
-      Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-      evaluation function (question 5).
-      DESCRIPTION: <write something here so we know what you did>
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Get the current position of Pac-Man and the list of food pellets
+    pacman_pos = currentGameState.getPacmanPosition()
+    food_list = currentGameState.getFood().asList()
+
+    # Calculate the minimum distance to a food pellet
+    if food_list:
+        min_food_distance = min(manhattanDistance(pacman_pos, food) for food in food_list)
+    else:
+        # If there are no food pellets remaining, set the minimum distance to a large value
+        min_food_distance = float('inf')
+
+    # Calculate the minimum distance to a ghost
+    ghost_positions = currentGameState.getGhostPositions()
+    if ghost_positions:
+        min_ghost_distance = min(manhattanDistance(pacman_pos, ghost) for ghost in ghost_positions)
+    else:
+        # If there are no ghosts remaining, set the minimum distance to a large value
+        min_ghost_distance = float('inf')
+
+    # Get the number of food pellets and power capsules remaining in the game
+    food_left = currentGameState.getNumFood()
+    capsule_left = len(currentGameState.getCapsules())
+
+    # Calculate the score using the factors described above
+    score = (1.0 / (food_left + 1)) * 1000000 + min_ghost_distance + (1.0 / (min_food_distance + 1)) * 1000 + (
+            1.0 / (capsule_left + 1)) * 10000
+    if currentGameState.isLose():
+        score -= 50000
+    elif currentGameState.isWin():
+        score += 50000
+
+    return score
+
 
 # Abbreviation
 better = betterEvaluationFunction
